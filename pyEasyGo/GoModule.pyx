@@ -1,7 +1,5 @@
 
-
-
 cdef class GoModule:
-	pass
-
+	def __cinit__(self, str abc):
+		pass
 
