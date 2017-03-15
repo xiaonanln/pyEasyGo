@@ -1,0 +1,7 @@
+
+
+
+cdef class GoModule:
+	pass
+
+
