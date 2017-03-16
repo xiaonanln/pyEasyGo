@@ -27,6 +27,12 @@ func Test4(a interface{}) {
 	fmt.Println("GO: Test4!", a)
 }
 
+//export Test5
+func Test5(a **int, b int) **int {
+	fmt.Println("GO: Test5!", a, *a)
+	return a
+}
+
 type T struct {
 }
 
