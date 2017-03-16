@@ -1,5 +1,6 @@
 *~
 build
 exampleGoModule/*.h
+pyEasyGo/*.c
 *.so
 *.pyc
