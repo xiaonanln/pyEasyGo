@@ -1,5 +1,7 @@
 .PHONY: all test clean
 
+lib=pyEasyGo
+
 all:
 	python setup.py build_ext --inplace
 
@@ -9,6 +11,7 @@ test: all
 clean:
 	rm -rf build
 	rm -rf *.so
-	rm -rf *~
-	rm -rf $(patsubst %.pyx,%.c,$(wildcard *.pyx))
-	rm -rf pyEasyGo/*.so
+	rm -rf *~ $(lib)/*~
+	rm -rf $(patsubst %.pyx,%.c,$(wildcard $(lib)/*.pyx))
+	rm -rf $(lib)/*.so $(lib)/*.pyc exampleGoModule/*~ exampleGoModule/*.h exampleGoModule/*.so
+

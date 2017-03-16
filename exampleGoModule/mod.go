@@ -9,7 +9,22 @@ import "C"
 
 //export Test1
 func Test1() {
-	fmt.Println("GO: Test!")
+	fmt.Println("GO: Test1!")
+}
+
+//export Test2
+func Test2(a int) {
+	fmt.Println("GO: Test2!", a)
+}
+
+//export Test3
+func Test3(a string) {
+	fmt.Println("GO: Test3!", a)
+}
+
+//export Test4
+func Test4(a interface{}) {
+	fmt.Println("GO: Test4!", a)
 }
 
 type T struct {
