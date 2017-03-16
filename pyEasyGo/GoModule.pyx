@@ -4,10 +4,13 @@ from ctypes import CDLL
 from ctypes import cdll
 
 cdef class _FuncCaller:
-	cdef object clib
+	cdef object func
 
-	def __cinit__(self, object clib):
-		self.clib = clib
+	def __cinit__(self, object func):
+		self.func = func
+
+	def __call__(self, *args):
+		return self.func( *args )
 
 cdef class GoModule:
 
@@ -24,5 +27,6 @@ cdef class GoModule:
 
 	def __getattr__(self, funcName):
 		print '__getattr__', funcName
-		return _FuncCaller(self.clib, funcName)
+		func = getattr(self.clib, funcName)
+		return _FuncCaller(func)
 

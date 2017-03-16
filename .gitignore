@@ -4,3 +4,4 @@ exampleGoModule/*.h
 pyEasyGo/*.c
 *.so
 *.pyc
+.*.swp
