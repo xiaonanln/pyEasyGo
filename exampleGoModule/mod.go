@@ -7,19 +7,30 @@ import (
 
 import "C"
 
-//export Test1
-func Test1() {
-	fmt.Println("GO: Test1!")
+//export TestVoid
+func TestVoid() {
+	fmt.Println("GO: TestVoid!")
 }
 
-//export Test2
-func Test2(a int) {
-	fmt.Println("GO: Test2!", a)
+//export TestInt
+func TestInt(a int) {
+	fmt.Println("GO: TestInt!", a)
 }
 
-//export Test3
-func Test3(a string) {
-	fmt.Println("GO: Test3!", a)
+//export TestString
+func TestString(a string) {
+	fmt.Println("GO: TestString!", a)
+}
+
+//export TestReturnVal
+func TestReturnVal(_s *C.char, n int) *C.char {
+	s := C.GoString(_s)
+	ss := ""
+	for i := 0; i < n; i++ {
+		ss += s
+	}
+	fmt.Println("GO: TestReturnVal", ss)
+	return C.CString(ss)
 }
 
 //export Test4

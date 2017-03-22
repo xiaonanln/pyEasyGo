@@ -8,6 +8,8 @@ cdef class GoFuncDecl:
 	cdef tuple argList
 
 	cdef tuple convertArgs(self, tuple args)
+	cdef object restoreReturnVal(self, object ret)
+	cdef getResType(self)
 
 cdef class GoHeader:
 	cdef str path

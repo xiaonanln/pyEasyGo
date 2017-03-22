@@ -5,3 +5,4 @@ pyEasyGo/*.c
 *.so
 *.pyc
 .*.swp
+*.swo

@@ -14,10 +14,12 @@ cdef class _FuncCaller:
 	def __cinit__(self, object func, GoFuncDecl decl):
 		self.func = func
 		self.decl = decl
+		# func.restype = decl.getResType()
 
 	def __call__(self, *args):
 		args = self.decl.convertArgs(args)
-		return self.func( *args )
+		ret = self.func( *args )
+		return self.decl.restoreReturnVal(ret)
 
 cdef class GoModule:
 
@@ -36,8 +38,9 @@ cdef class GoModule:
 		return "GoModule<%s>" % self.filePath
 
 	def __getattr__(self, funcName):
-		print '__getattr__', funcName
 		func = getattr(self.clib, funcName)
 		funcDecl = self.header.getFuncDecl(funcName)
-		return _FuncCaller(func, funcDecl)
+		funcCaller = _FuncCaller(func, funcDecl)
+		# setattr(self, funcName, funcCaller)
+		return funcCaller
 
