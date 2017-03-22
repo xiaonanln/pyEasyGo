@@ -1,8 +1,13 @@
-.PHONY: all test clean
+.PHONY: all test clean pyEasyGo exampleGoModule
 
 lib=pyEasyGo
 
-all:
+all: exampleGoModule pyEasyGo
+	
+exampleGoModule:
+	cd exampleGoModule; make
+
+pyEasyGo:
 	python setup.py build_ext --inplace
 
 test: all

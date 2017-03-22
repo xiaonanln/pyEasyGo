@@ -33,6 +33,12 @@ func Test5(a **int, b int) **int {
 	return a
 }
 
+//export TestCString
+func TestCString(s *C.char) *C.char {
+	fmt.Println("GO: TestCString!", C.GoString(s))
+	return s
+}
+
 type T struct {
 }
 
