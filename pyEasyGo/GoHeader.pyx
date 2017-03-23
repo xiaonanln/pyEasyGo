@@ -2,6 +2,7 @@ import re
 import os
 import sys
 from ctypes import *
+from cgocheck cimport cgocheck
 
 cdef class GoType:
 	def __cinit__(self, str s):
@@ -132,13 +133,7 @@ cdef class GoFuncDecl:
 	cdef validate(self):
 		# check if returnType contains GoPointer
 		if self.retType.containsGoPointer():
-			GODEBUG = os.getenv('GODEBUG')
-			cgocheck = None
-			for v in GODEBUG.split()[::-1]:
-				if not v.startswith('cgocheck='): continue 
-				cgocheck = v
-				break 
-			if cgocheck != 'cgocheck=0':
+			if cgocheck() != 0:
 				print >>sys.stderr, 'WARNING: Go function "%s" returns Go pointer and cgocheck!=0. Will panic when called.' % self
 
 cdef class GoHeader:

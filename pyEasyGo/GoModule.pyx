@@ -1,4 +1,5 @@
 
+import os
 import ctypes
 from ctypes import CDLL
 from ctypes import cdll
@@ -17,6 +18,8 @@ cdef class _FuncCaller:
 		func.restype = decl.getResType()
 
 	def __call__(self, *_args):
+		if self.decl.retType.containsGoPointer():
+			raise Exception()
 		cdef list args = self.decl.convertArgs(_args)
 		ret = self.func( *args )
 		return self.decl.restoreReturnVal(ret)
