@@ -1,5 +1,6 @@
-from ctypes import *
 import re
+import sys
+from ctypes import *
 
 cdef class GoType:
 	def __cinit__(self, str s):
@@ -8,19 +9,37 @@ cdef class GoType:
 	def __str__(self):
 		return self.s
 
+	cdef restype(self):
+		return None
+
+	cdef convert(self, object pv):
+		return pv
+
+	cdef restore(self, object gv):
+		return gv
+	
 cdef class GoVoidType(GoType):
-	cpdef restore(self, object gv):
+	cdef restore(self, object gv):
+		return None
+
+	cdef restype(self):
 		return None
 
 cdef class GoIntType(GoType): 
-	cpdef convert(self, long pv):
+	cdef convert(self, object pv):
+		if not isinstance(pv, (int, long)):
+			raise TypeError("int required, but got %s" % type(pv).__name__)
+		if pv > 0x7fffffffffffffff or pv < -0x7fffffffffffffff-1:
+			raise OverflowError(pv)
+
 		return c_long(pv)
 
 class GoStringHeader(Structure):
 	_fields_ = [ ('p', c_char_p),  ('n', c_long) ]
 
+
 cdef class GoStringType(GoType):
-	cpdef convert(self, object pv):
+	cdef convert(self, object pv):
 		if isinstance(pv, str):
 			return GoStringHeader(c_char_p(pv), len(pv))
 		elif isinstance(pv, unicode):
@@ -28,12 +47,19 @@ cdef class GoStringType(GoType):
 			return GoStringHeader(c_char_p(pv), len(pv))
 		else:
 			raise TypeError("str or unicode is required, got %s" % type(pv).__name__)
+
+	cdef restype(self):
+		return GoStringHeader
+	
+	cdef restore(self, object gv):
+		print 'GoStringType.restore', gv.p, gv.n
+		return gv.p[:gv.n]
 
 cdef class GoInterfaceType(GoType):  pass
 cdef class GoCharType(GoType): pass
 
 cdef class GoCharPtrType(GoType): 
-	cpdef convert(self, object pv):
+	cdef convert(self, object pv):
 		if isinstance(pv, str):
 			return c_char_p(pv)
 		elif isinstance(pv, unicode):
@@ -42,8 +68,8 @@ cdef class GoCharPtrType(GoType):
 		else:
 			raise TypeError("str or unicode is required, got %s" % type(pv).__name__)
 
-	cpdef restore(self, long gv):
-		return c_char_p(gv).value
+	cdef restype(self):
+		return c_char_p
 
 cdef class GoPointerType(GoType):
 	cdef GoType subType 
@@ -51,7 +77,6 @@ cdef class GoPointerType(GoType):
 	def __cinit__(self, str s):
 		cdef str subTypeStr = s[:-1]
 		self.subType = makeGoType(subTypeStr)
-
 
 cdef GoType makeGoType(typeStr):
 	if typeStr == 'void':
@@ -82,13 +107,19 @@ cdef class GoFuncDecl:
 		return "%s %s(%s)" % (self.retType, self.funcName, ", ".join(map(str, self.argList)))
 
 	cdef getResType(self):
-		return self.retType.restore
+		return self.retType.restype()
 
-	cdef tuple convertArgs(self, tuple args):
+	cdef list convertArgs(self, tuple args):
 		if len(args) != len(self.argList):
 			raise TypeError("%s takes %s arguments (%d given)" % (self, len(self.argList), len(args)) )
-	
-		return tuple(argType.convert(args[i]) for i, argType in enumerate(self.argList))
+		
+		cdef GoType argType
+		cdef list convertedArgs = []
+		for i, _argType in enumerate(self.argList):
+			argType = _argType
+			convertedArgs.append(argType.convert(args[i]))
+
+		return convertedArgs
 
 	cdef object restoreReturnVal(self, object ret):
 		return self.retType.restore(ret)

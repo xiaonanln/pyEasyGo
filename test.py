@@ -1,3 +1,4 @@
+import time
 from traceback import print_exc
 import pyEasyGo as ego
 
@@ -27,4 +28,9 @@ except TypeError: pass
 # test return values
 retVal = gmod.TestReturnVal('world', 5)
 print 'ReturnVal', repr(retVal)
+
+retVal = gmod.TestReturnString('hello', 3)
+print 'TestReturnString ==>', retVal
+
+time.sleep(1)
 

@@ -22,6 +22,16 @@ func TestString(a string) {
 	fmt.Println("GO: TestString!", a)
 }
 
+//export TestReturnString
+func TestReturnString(s string, n int) string {
+	ss := ""
+	for i := 0; i < n; i++ {
+		ss += s
+	}
+	fmt.Println("GO: TestReturnString", ss[3:10])
+	return ss[3:10]
+}
+
 //export TestReturnVal
 func TestReturnVal(_s *C.char, n int) *C.char {
 	s := C.GoString(_s)

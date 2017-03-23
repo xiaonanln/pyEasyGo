@@ -14,10 +14,10 @@ cdef class _FuncCaller:
 	def __cinit__(self, object func, GoFuncDecl decl):
 		self.func = func
 		self.decl = decl
-		# func.restype = decl.getResType()
+		func.restype = decl.getResType()
 
-	def __call__(self, *args):
-		args = self.decl.convertArgs(args)
+	def __call__(self, *_args):
+		cdef list args = self.decl.convertArgs(_args)
 		ret = self.func( *args )
 		return self.decl.restoreReturnVal(ret)
 

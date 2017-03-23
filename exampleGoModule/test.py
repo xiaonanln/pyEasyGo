@@ -11,8 +11,9 @@ class _GoString(Structure):
 def GoString(s):
 	return _GoString(s, len(s))
 	
-so.Test1()
-so.Test2(12345)
-so.Test3(GoString("abc"))
-so.Test3(GoString("123"))
+so.TestVoid()
+so.TestInt(12345)
+so.TestString(GoString("abc"))
+so.TestString(GoString("123"))
 so.TestCString(c_char_p("hello"))
+so.TestReturnString(GoString("world"),2)

@@ -1,13 +1,16 @@
 
 cdef class GoType:
 	cdef str s
+	cdef restype(self)
+	cdef convert(self, object pv)
+	cdef restore(self, object gv)
 
 cdef class GoFuncDecl:
 	cdef GoType retType
 	cdef str funcName
 	cdef tuple argList
 
-	cdef tuple convertArgs(self, tuple args)
+	cdef list convertArgs(self, tuple args)
 	cdef object restoreReturnVal(self, object ret)
 	cdef getResType(self)
 
