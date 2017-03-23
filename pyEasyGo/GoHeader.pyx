@@ -1,4 +1,5 @@
 import re
+import os
 import sys
 from ctypes import *
 
@@ -17,6 +18,9 @@ cdef class GoType:
 
 	cdef restore(self, object gv):
 		return gv
+
+	cdef bint containsGoPointer(self):
+		return False
 	
 cdef class GoVoidType(GoType):
 	cdef restore(self, object gv):
@@ -37,7 +41,6 @@ cdef class GoIntType(GoType):
 class GoStringHeader(Structure):
 	_fields_ = [ ('p', c_char_p),  ('n', c_long) ]
 
-
 cdef class GoStringType(GoType):
 	cdef convert(self, object pv):
 		if isinstance(pv, str):
@@ -52,8 +55,10 @@ cdef class GoStringType(GoType):
 		return GoStringHeader
 	
 	cdef restore(self, object gv):
-		print 'GoStringType.restore', gv.p, gv.n
 		return gv.p[:gv.n]
+
+	cdef bint containsGoPointer(self):
+		return True
 
 cdef class GoInterfaceType(GoType):  pass
 cdef class GoCharType(GoType): pass
@@ -124,6 +129,18 @@ cdef class GoFuncDecl:
 	cdef object restoreReturnVal(self, object ret):
 		return self.retType.restore(ret)
 
+	cdef validate(self):
+		# check if returnType contains GoPointer
+		if self.retType.containsGoPointer():
+			GODEBUG = os.getenv('GODEBUG')
+			cgocheck = None
+			for v in GODEBUG.split()[::-1]:
+				if not v.startswith('cgocheck='): continue 
+				cgocheck = v
+				break 
+			if cgocheck != 'cgocheck=0':
+				print >>sys.stderr, 'WARNING: Go function "%s" returns Go pointer and cgocheck!=0. Will panic when called.' % self
+
 cdef class GoHeader:
 
 	PROLOGUE_END = re.compile(r'/\*\s*End of boilerplate cgo prologue.\s*\*/\s*')
@@ -147,8 +164,16 @@ cdef class GoHeader:
 						self.funcDecls[funcName] = GoFuncDecl(retType, funcName, argList)
 						# print 'parseExternFunc', retType, funcName, argList, "=>", self.funcDecls[funcName]
 
+		self.validate()
+
 	def __str__(self):
 		return "<%s>" % self.path
 
 	cdef GoFuncDecl getFuncDecl(self, str funcName):
 		return self.funcDecls[funcName]
+
+	cdef validate(self):
+		cdef GoFuncDecl decl
+		for decl in self.funcDecls.itervalues():
+			decl.validate()
+
