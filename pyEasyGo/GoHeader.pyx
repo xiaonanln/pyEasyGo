@@ -27,8 +27,37 @@ cdef class GoVoidType(GoType):
 	cdef restore(self, object gv):
 		return None
 
-	cdef restype(self):
-		return None
+cdef class GoUint8Type(GoType):
+	cdef restore(self, object gv):
+		return c_uint8(gv)
+
+cdef class GoInt8Type(GoType):
+	cdef restore(self, object gv):
+		return c_int8(gv)
+
+cdef class GoUint16Type(GoType):
+	cdef restore(self, object gv):
+		return c_uint16(gv)
+
+cdef class GoInt16Type(GoType):
+	cdef restore(self, object gv):
+		return c_int16(gv)
+
+cdef class GoUint32Type(GoType):
+	cdef restore(self, object gv):
+		return c_uint32(gv)
+
+cdef class GoInt32Type(GoType):
+	cdef restore(self, object gv):
+		return c_int32(gv)
+
+cdef class GoInt64Type(GoType):
+	cdef restore(self, object gv):
+		return c_int64(gv)
+
+cdef class GoUint64Type(GoType):
+	cdef restore(self, object gv):
+		return c_uint64(gv)
 
 cdef class GoIntType(GoType): 
 	cdef convert(self, object pv):
@@ -38,6 +67,34 @@ cdef class GoIntType(GoType):
 			raise OverflowError(pv)
 
 		return c_long(pv)
+
+cdef class GoUintType(GoType):
+	cdef restore(self, object gv):
+		return c_uint(gv)
+
+cdef class GoUintptrType(GoType):
+	pass
+
+cdef class GoFloat32Type(GoType):
+	pass
+
+cdef class GoFloat64Type(GoType):
+	pass
+
+cdef class GoComplex64Type(GoType):
+	pass
+
+cdef class GoComplex128Type(GoType):
+	pass
+
+cdef class GoMapType(GoType):
+	pass
+
+cdef class GoChanType(GoType):
+	pass
+
+cdef class GoSliceType(GoType):
+	pass
 
 class GoStringHeader(Structure):
 	_fields_ = [ ('p', c_char_p),  ('n', c_long) ]
@@ -77,6 +134,8 @@ cdef class GoCharPtrType(GoType):
 	cdef restype(self):
 		return c_char_p
 
+cdef class GoStructureType(GoType): pass
+
 cdef class GoPointerType(GoType):
 	cdef GoType subType 
 
@@ -84,22 +143,42 @@ cdef class GoPointerType(GoType):
 		cdef str subTypeStr = s[:-1]
 		self.subType = makeGoType(subTypeStr)
 
-cdef GoType makeGoType(typeStr):
-	if typeStr == 'void':
-		return GoVoidType(typeStr)
-	elif typeStr == 'GoInt':
-		return GoIntType(typeStr)
-	elif typeStr == 'GoString':
-		return GoStringType(typeStr)
-	elif typeStr == 'GoInterface':
-		return GoInterfaceType(typeStr)
-	elif typeStr == 'char':
-		return GoCharType(typeStr)
-	elif typeStr.endswith('*'):
+cdef dict goTypeMap = {
+	'void': GoVoidType, 
+	'GoString': GoStringType, 
+	'char': GoCharType, 
+	'GoInt': GoIntType, 
+	'GoUint': GoUintType, 
+	'GoInt8': GoInt8Type, 
+	'GoUint8': GoUint8Type, 
+	'GoInt16': GoInt16Type, 
+	'GoUint16': GoUint16Type,
+	'GoInt32': GoInt32Type, 
+	'GoUint32': GoUint32Type,
+	'GoInt64': GoInt64Type, 
+	'GoUint64': GoUint64Type,
+	'GoUintptr': GoUintptrType, 
+	'GoFloat32': GoFloat32Type, 
+	'GoFloat64': GoFloat64Type, 
+	'GoComplex64': GoComplex64Type, 
+	'GoComplex128': GoComplex128Type,
+	'GoInterface': GoInterfaceType, 
+	'GoMap': GoMapType, 
+	'GoChan': GoChanType, 
+	'GoSlice': GoSliceType,
+}
+
+cdef GoType makeGoType(str typeStr):
+	if typeStr in goTypeMap:
+		return goTypeMap[typeStr](typeStr)
+
+	if typeStr.endswith('*'):
 		if typeStr[:-1].strip() == 'char':
 			return GoCharPtrType(typeStr)
 
 		return GoPointerType(typeStr)
+	elif typeStr.startswith('struct '):
+		return GoStructureType(typeStr)
 
 	assert False, 'unknown go type: %s' % typeStr
 
@@ -139,7 +218,7 @@ cdef class GoFuncDecl:
 cdef class GoHeader:
 
 	PROLOGUE_END = re.compile(r'/\*\s*End of boilerplate cgo prologue.\s*\*/\s*')
-	FUNC_PATTERN = re.compile(r'extern (\S+) (\S+)\((.*)\);\s*')
+	FUNC_PATTERN = re.compile(r'extern (.*) (\S+)\((.*)\);\s*')
 
 	def __cinit__(self, headerPath):
 		self.path = headerPath
@@ -158,6 +237,8 @@ cdef class GoHeader:
 						retType, funcName, argList = m.groups()
 						self.funcDecls[funcName] = GoFuncDecl(retType, funcName, argList)
 						# print 'parseExternFunc', retType, funcName, argList, "=>", self.funcDecls[funcName]
+					# else: 
+					# 	print 'ignore', line,
 
 		self.validate()
 

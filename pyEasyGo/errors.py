@@ -1,0 +1,3 @@
+
+class GolangError(Exception): pass
+

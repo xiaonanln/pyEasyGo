@@ -32,5 +32,5 @@ print 'ReturnVal', repr(retVal)
 retVal = gmod.TestReturnString('hello', 3)
 print 'TestReturnString ==>', retVal
 
-time.sleep(1)
-
+try: gmod.UsingAllTypes(); assert False
+except TypeError: pass

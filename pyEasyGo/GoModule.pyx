@@ -7,6 +7,9 @@ from ctypes import cdll
 from GoHeader cimport GoHeader
 from GoHeader cimport GoFuncDecl
 from GoHeader cimport GoType
+from cgocheck cimport cgocheck
+
+from errors import GolangError
 
 cdef class _FuncCaller:
 	cdef object func
@@ -17,9 +20,10 @@ cdef class _FuncCaller:
 		self.decl = decl
 		func.restype = decl.getResType()
 
+		if decl.retType.containsGoPointer() and cgocheck() != 0:
+			raise GolangError("return value contains Go pointer and cgocheck=%d" % cgocheck())
+
 	def __call__(self, *_args):
-		if self.decl.retType.containsGoPointer():
-			raise Exception()
 		cdef list args = self.decl.convertArgs(_args)
 		ret = self.func( *args )
 		return self.decl.restoreReturnVal(ret)
