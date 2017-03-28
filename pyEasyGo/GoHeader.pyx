@@ -28,49 +28,44 @@ cdef class GoVoidType(GoType):
 		return None
 
 cdef class GoUint8Type(GoType):
-	cdef restore(self, object gv):
-		return c_uint8(gv)
+	cdef restype(self): return c_uint8
+	cdef convert(self, object pv): return c_uint8(pv)
 
 cdef class GoInt8Type(GoType):
-	cdef restore(self, object gv):
-		return c_int8(gv)
+	cdef restype(self): return c_int8
+	cdef convert(self, object pv): return c_int8(pv)
 
 cdef class GoUint16Type(GoType):
-	cdef restore(self, object gv):
-		return c_uint16(gv)
+	cdef restype(self): return c_uint16
+	cdef convert(self, object pv): return c_uint16(pv)
 
 cdef class GoInt16Type(GoType):
-	cdef restore(self, object gv):
-		return c_int16(gv)
+	cdef restype(self): return c_int16
+	cdef convert(self, object pv): return c_int16(pv)
 
 cdef class GoUint32Type(GoType):
-	cdef restore(self, object gv):
-		return c_uint32(gv)
+	cdef restype(self): return c_uint32
+	cdef convert(self, object pv): return c_uint32(pv)
 
 cdef class GoInt32Type(GoType):
-	cdef restore(self, object gv):
-		return c_int32(gv)
+	cdef restype(self): return c_int32
+	cdef convert(self, object pv): return c_int32(pv)
 
 cdef class GoInt64Type(GoType):
-	cdef restore(self, object gv):
-		return c_int64(gv)
+	cdef restype(self): return c_int64
+	cdef convert(self, object pv): return c_int64(pv)
 
 cdef class GoUint64Type(GoType):
-	cdef restore(self, object gv):
-		return c_uint64(gv)
+	cdef restype(self): return c_uint64
+	cdef convert(self, object pv): return c_uint64(pv)
 
 cdef class GoIntType(GoType): 
-	cdef convert(self, object pv):
-		if not isinstance(pv, (int, long)):
-			raise TypeError("int required, but got %s" % type(pv).__name__)
-		if pv > 0x7fffffffffffffff or pv < -0x7fffffffffffffff-1:
-			raise OverflowError(pv)
-
-		return c_long(pv)
+	cdef restype(self): return c_int
+	cdef convert(self, object pv): return c_int(pv)
 
 cdef class GoUintType(GoType):
-	cdef restore(self, object gv):
-		return c_uint(gv)
+	cdef restype(self): return c_int
+	cdef convert(self, object pv): return c_uint(pv)
 
 cdef class GoUintptrType(GoType):
 	pass
@@ -125,7 +120,7 @@ cdef class GoStringType(GoType):
 cdef class GoInterfaceType(GoType):  pass
 cdef class GoCharType(GoType): pass
 
-cdef class GoCharPtrType(GoType): 
+cdef class GoCharPtrType(GoPointerType): 
 	cdef convert(self, object pv):
 		if isinstance(pv, str):
 			return c_char_p(pv)
@@ -146,6 +141,10 @@ cdef class GoPointerType(GoType):
 	def __cinit__(self, str s):
 		cdef str subTypeStr = s[:-1]
 		self.subType = makeGoType(subTypeStr)
+	
+	cdef restype(self): return c_void_p
+	cdef convert(self, object pv): return c_void_p(pv)
+	cdef bint containsGoPointer(self): return True
 
 cdef dict goTypeMap = {
 	'void': GoVoidType, 
@@ -176,8 +175,10 @@ cdef GoType makeGoType(str typeStr):
 	if typeStr in goTypeMap:
 		return goTypeMap[typeStr](typeStr)
 
+	cdef str derefType
 	if typeStr.endswith('*'):
-		if typeStr[:-1].strip() == 'char':
+		derefType = typeStr[:-1].strip()
+		if derefType == 'char':
 			return GoCharPtrType(typeStr)
 
 		return GoPointerType(typeStr)

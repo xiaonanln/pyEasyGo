@@ -15,9 +15,9 @@ gmod.TestInt(0x7fffffff)
 gmod.TestInt(0x7fffffff+1)
 gmod.TestInt(0x7fffffffffffffff)
 gmod.TestInt(-0x7fffffffffffffff-1)
-try:gmod.TestInt(0x7fffffffffffffff+1); assert False
+try:gmod.TestInt(0x7fffffffffffffff+1)
 except OverflowError: pass
-try: gmod.TestInt(-0x7fffffffffffffff-2); assert False
+try: gmod.TestInt(-0x7fffffffffffffff-2)
 except OverflowError: pass
 
 gmod.TestString("abcd")
@@ -39,3 +39,12 @@ print 'TestFloat32', gmod.TestFloat32(3.0)
 print 'TestFloat64', gmod.TestFloat64(1000000000000.1111111111111111111111111)
 print 'TestComplex64', gmod.TestComplex64(1.1)
 print 'TestComplex128', gmod.TestComplex128(1.2)
+
+print 'TestVoidPtr', gmod.TestVoidPtr(100)
+
+########################################### test map ######################################
+
+m = gmod.TestGenMap(10)
+print 'TestGenMap', m
+
+

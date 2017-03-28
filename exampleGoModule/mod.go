@@ -71,6 +71,36 @@ func TestCString(s *C.char) *C.char {
 	return s
 }
 
+//export TestVoidPtr
+func TestVoidPtr(i int) unsafe.Pointer {
+	return unsafe.Pointer(&i)
+}
+
+//export TestSetMap
+func TestSetMap(a map[int]int, k, v int) map[int]int {
+	a[k] = v
+	return a
+}
+
+//export TestGetMap
+func TestGetMap(a map[int]int, k int) int {
+	return a[k]
+}
+
+//export TestPrintMap
+func TestPrintMap(m map[int]int) {
+	fmt.Printf("TestPrintMap %v\n", m)
+}
+
+//export TestGenMap
+func TestGenMap(n int) map[int]int {
+	m := map[int]int{}
+	for i := 0; i < n; i++ {
+		m[i] = i * i
+	}
+	return m
+}
+
 type T struct {
 }
 
