@@ -77,17 +77,19 @@ cdef class GoUintptrType(GoType):
 
 cdef class GoFloat32Type(GoType):
 	cdef restype(self): return c_float
-	cdef convert(self, object pv):
-		return c_float(pv)
+	cdef convert(self, object pv): return c_float(pv)
 
 cdef class GoFloat64Type(GoType):
-	pass
+	cdef restype(self): return c_double
+	cdef convert(self, object pv): return c_double(pv)
 
 cdef class GoComplex64Type(GoType):
-	pass
+	cdef restype(self): return c_float
+	cdef convert(self, object pv): return c_float(pv)
 
 cdef class GoComplex128Type(GoType):
-	pass
+	cdef restype(self): return c_double
+	cdef convert(self, object pv): return c_double(pv)
 
 cdef class GoMapType(GoType):
 	pass

@@ -53,6 +53,18 @@ func TestFloat64(f float64) float64 {
 	return f * f
 }
 
+//export TestComplex64
+func TestComplex64(comp complex64) complex64 {
+	fmt.Printf("GO: TestComplex64 %v => %v\n", comp, comp*comp)
+	return comp * comp
+}
+
+//export TestComplex128
+func TestComplex128(comp complex128) complex128 {
+	fmt.Printf("GO: TestComplex128 %v => %v\n", comp, comp+comp)
+	return comp + comp
+}
+
 //export TestCString
 func TestCString(s *C.char) *C.char {
 	fmt.Println("GO: TestCString!", C.GoString(s))

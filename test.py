@@ -35,5 +35,7 @@ print 'TestReturnString ==>', retVal
 try: gmod.UsingAllTypes(); assert False
 except TypeError: pass
 
-ret = gmod.TestFloat32(3.0)
-print 'TestFloat32', ret
+print 'TestFloat32', gmod.TestFloat32(3.0)
+print 'TestFloat64', gmod.TestFloat64(1000000000000.1111111111111111111111111)
+print 'TestComplex64', gmod.TestComplex64(1.1)
+print 'TestComplex128', gmod.TestComplex128(1.2)
