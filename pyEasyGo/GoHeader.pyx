@@ -76,7 +76,9 @@ cdef class GoUintptrType(GoType):
 	pass
 
 cdef class GoFloat32Type(GoType):
-	pass
+	cdef restype(self): return c_float
+	cdef convert(self, object pv):
+		return c_float(pv)
 
 cdef class GoFloat64Type(GoType):
 	pass

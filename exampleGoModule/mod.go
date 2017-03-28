@@ -43,15 +43,14 @@ func TestReturnVal(_s *C.char, n int) *C.char {
 	return C.CString(ss)
 }
 
-//export Test4
-func Test4(a interface{}) {
-	fmt.Println("GO: Test4!", a)
+//export TestFloat32
+func TestFloat32(f float32) float32 {
+	return f * f
 }
 
-//export Test5
-func Test5(a **int, b int) **int {
-	fmt.Println("GO: Test5!", a, *a)
-	return a
+//export TestFloat64
+func TestFloat64(f float64) float64 {
+	return f * f
 }
 
 //export TestCString

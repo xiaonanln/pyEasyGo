@@ -18,7 +18,9 @@ cdef class _FuncCaller:
 	def __cinit__(self, object func, GoFuncDecl decl):
 		self.func = func
 		self.decl = decl
-		func.restype = decl.getResType()
+		restype = decl.getResType()
+		if restype is not None:
+			func.restype = restype
 
 		if decl.retType.containsGoPointer() and cgocheck() != 0:
 			raise GolangError("return value contains Go pointer and cgocheck=%d" % cgocheck())
