@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"unsafe"
 )
 
@@ -71,9 +72,34 @@ func TestCString(s *C.char) *C.char {
 	return s
 }
 
+//export RunGC
+func RunGC() {
+	fmt.Println("GO: GC ...")
+	runtime.GC()
+}
+
 //export TestVoidPtr
 func TestVoidPtr(i int) unsafe.Pointer {
-	return unsafe.Pointer(&i)
+	p := unsafe.Pointer(&i)
+	// safePtrs[p] = true
+	return p
+}
+
+var (
+	safePtrs = map[unsafe.Pointer]bool{}
+)
+
+//export SavePtr
+func SavePtr(ptr unsafe.Pointer) {
+	safePtrs[ptr] = true
+}
+
+//export TestWriteVoidPtr
+func TestWriteVoidPtr(p unsafe.Pointer, v int) {
+	pi := (*int)(p)
+	oldv := *pi
+	*pi = v
+	fmt.Println("Write VoidPtr", pi, oldv, v)
 }
 
 //export TestSetMap

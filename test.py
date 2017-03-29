@@ -3,7 +3,8 @@ from traceback import print_exc
 import pyEasyGo as ego
 
 gmod = ego.GoModule("exampleGoModule/exampleGoModule.so")
-print gmod
+goutil = ego.GoModule("goutil/goutil.so")
+print gmod, goutil
 gmod.TestVoid()
 gmod.TestInt(1234)
 #try: gmod.TestInt(1234.54); assert False
@@ -40,7 +41,13 @@ print 'TestFloat64', gmod.TestFloat64(1000000000000.1111111111111111111111111)
 print 'TestComplex64', gmod.TestComplex64(1.1)
 print 'TestComplex128', gmod.TestComplex128(1.2)
 
-print 'TestVoidPtr', gmod.TestVoidPtr(100)
+while True:
+	vptr = gmod.TestVoidPtr(100)
+	gmod.SavePtr(vptr)
+	print 'TestVoidPtr', vptr
+	gmod.RunGC()
+	print 'TestVoidPtr write', gmod.TestWriteVoidPtr(vptr, 200)
+	time.sleep(1)
 
 ########################################### test map ######################################
 
