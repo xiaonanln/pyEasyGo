@@ -1,10 +1,10 @@
+import sys
 import time
 from traceback import print_exc
 import pyEasyGo as ego
 
 gmod = ego.GoModule("exampleGoModule/exampleGoModule.so")
-goutil = ego.GoModule("goutil/goutil.so")
-print gmod, goutil
+print gmod
 gmod.TestVoid()
 gmod.TestInt(1234)
 #try: gmod.TestInt(1234.54); assert False
@@ -26,6 +26,9 @@ gmod.TestString(u'hoho')
 try: gmod.TestString(1); assert False
 except TypeError: pass 
 
+ret = gmod.TestCString("abc")
+print 'TestCString', ret
+
 # test return values
 retVal = gmod.TestReturnVal('world', 5)
 print 'ReturnVal', repr(retVal)
@@ -43,10 +46,10 @@ print 'TestComplex128', gmod.TestComplex128(1.2)
 
 while True:
 	vptr = gmod.TestVoidPtr(100)
-	gmod.SavePtr(vptr)
-	print 'TestVoidPtr', vptr
+	gmod.__SavePtr(vptr)
+	print >>sys.stderr, 'TestVoidPtr', vptr, repr(vptr), type(vptr)
 	gmod.RunGC()
-	print 'TestVoidPtr write', gmod.TestWriteVoidPtr(vptr, 200)
+	print >>sys.stderr, 'TestVoidPtr write', gmod.TestWriteVoidPtr(vptr, 200)
 	time.sleep(1)
 
 ########################################### test map ######################################

@@ -1,9 +1,10 @@
+from GoModule cimport GoModule
 
 cdef class GoType:
 	cdef str s
 	cdef restype(self)
 	cdef convert(self, object pv)
-	cdef restore(self, object gv)
+	cdef restore(self, GoModule module, object gv)
 	cdef bint containsGoPointer(self)
 
 cdef class GoFuncDecl:
@@ -12,7 +13,7 @@ cdef class GoFuncDecl:
 	cdef tuple argList
 
 	cdef list convertArgs(self, tuple args)
-	cdef object restoreReturnVal(self, object ret)
+	cdef object restoreReturnVal(self, GoModule module, object ret)
 	cdef getResType(self)
 
 	cdef validate(self)

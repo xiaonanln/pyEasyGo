@@ -17,14 +17,14 @@ cdef class GoType:
 	cdef convert(self, object pv):
 		return pv
 
-	cdef restore(self, object gv):
+	cdef restore(self, GoModule module, object gv):
 		return gv
 
 	cdef bint containsGoPointer(self):
 		return False
 	
 cdef class GoVoidType(GoType):
-	cdef restore(self, object gv):
+	cdef restore(self, GoModule module, object gv):
 		return None
 
 cdef class GoUint8Type(GoType):
@@ -95,6 +95,36 @@ cdef class GoChanType(GoType):
 cdef class GoSliceType(GoType):
 	pass
 
+cdef class GoInterfaceType(GoType):  pass
+cdef class GoCharType(GoType): pass
+
+cdef class GoPointer:
+	pass
+
+cdef class GoPointerType(GoType):
+	cdef GoType subType 
+
+	def __cinit__(self, str s):
+		cdef str subTypeStr = s[:-1]
+		self.subType = makeGoType(subTypeStr)
+	
+	cdef restype(self): return c_void_p
+	cdef convert(self, object pv): return c_void_p(pv)
+	cdef bint containsGoPointer(self): return True
+
+cdef class GoCharPtrType(GoPointerType): 
+	cdef convert(self, object pv):
+		if isinstance(pv, str):
+			return c_char_p(pv)
+		elif isinstance(pv, unicode):
+			pv = pv.encode('utf-8')
+			return c_char_p(pv)
+		else:
+			raise TypeError("str or unicode is required, got %s" % type(pv).__name__)
+
+	cdef restype(self):
+		return c_char_p
+
 class GoStringHeader(Structure):
 	_fields_ = [ ('p', c_char_p),  ('n', c_long) ]
 
@@ -111,40 +141,14 @@ cdef class GoStringType(GoType):
 	cdef restype(self):
 		return GoStringHeader
 	
-	cdef restore(self, object gv):
+	cdef restore(self, GoModule module, object gv):
 		return gv.p[:gv.n]
 
 	cdef bint containsGoPointer(self):
 		return True
 
-cdef class GoInterfaceType(GoType):  pass
-cdef class GoCharType(GoType): pass
-
-cdef class GoCharPtrType(GoPointerType): 
-	cdef convert(self, object pv):
-		if isinstance(pv, str):
-			return c_char_p(pv)
-		elif isinstance(pv, unicode):
-			pv = pv.encode('utf-8')
-			return c_char_p(pv)
-		else:
-			raise TypeError("str or unicode is required, got %s" % type(pv).__name__)
-
-	cdef restype(self):
-		return c_char_p
 
 cdef class GoStructureType(GoType): pass
-
-cdef class GoPointerType(GoType):
-	cdef GoType subType 
-
-	def __cinit__(self, str s):
-		cdef str subTypeStr = s[:-1]
-		self.subType = makeGoType(subTypeStr)
-	
-	cdef restype(self): return c_void_p
-	cdef convert(self, object pv): return c_void_p(pv)
-	cdef bint containsGoPointer(self): return True
 
 cdef dict goTypeMap = {
 	'void': GoVoidType, 
@@ -211,8 +215,8 @@ cdef class GoFuncDecl:
 
 		return convertedArgs
 
-	cdef object restoreReturnVal(self, object ret):
-		return self.retType.restore(ret)
+	cdef object restoreReturnVal(self, GoModule module, object ret):
+		return self.retType.restore(module, ret)
 
 	cdef validate(self):
 		# check if returnType contains GoPointer

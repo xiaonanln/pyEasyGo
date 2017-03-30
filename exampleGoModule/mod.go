@@ -68,8 +68,10 @@ func TestComplex128(comp complex128) complex128 {
 
 //export TestCString
 func TestCString(s *C.char) *C.char {
-	fmt.Println("GO: TestCString!", C.GoString(s))
-	return s
+	gos := C.GoString(s)
+	gos = gos + gos
+	fmt.Println("GO: TestCString!", gos)
+	return C.CString(gos)
 }
 
 //export RunGC
@@ -83,15 +85,6 @@ func TestVoidPtr(i int) unsafe.Pointer {
 	p := unsafe.Pointer(&i)
 	// safePtrs[p] = true
 	return p
-}
-
-var (
-	safePtrs = map[unsafe.Pointer]bool{}
-)
-
-//export SavePtr
-func SavePtr(ptr unsafe.Pointer) {
-	safePtrs[ptr] = true
 }
 
 //export TestWriteVoidPtr
