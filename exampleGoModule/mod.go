@@ -125,6 +125,22 @@ func TestNewMap(n int) map[int]int {
 	return m
 }
 
+//export TestNewChan
+func TestNewChan(cap int) chan int {
+	ch := make(chan int, cap)
+	return ch
+}
+
+//export TestPushChan
+func TestPushChan(ch chan int, v int) {
+	ch <- v
+}
+
+//export TestPopChan
+func TestPopChan(ch chan int) int {
+	return <-ch
+}
+
 type T struct {
 }
 

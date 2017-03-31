@@ -62,3 +62,12 @@ gmod.TestPrintMap(m)
 gmod.TestSetMap(m, 100, 100)
 gmod.TestPrintMap(m)
 
+######################################### TEST CHAN #######################################
+
+N = 3
+ch = gmod.TestNewChan(N)
+for i in xrange(N):
+	gmod.TestPushChan(ch, i)
+for i in xrange(N):
+	print >>sys.stderr, 'pop', gmod.TestPopChan(ch)
+
