@@ -116,8 +116,8 @@ func TestPrintMap(m map[int]int) {
 	fmt.Printf("TestPrintMap %v\n", m)
 }
 
-//export TestGenMap
-func TestGenMap(n int) map[int]int {
+//export TestNewMap
+func TestNewMap(n int) map[int]int {
 	m := map[int]int{}
 	for i := 0; i < n; i++ {
 		m[i] = i * i

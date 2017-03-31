@@ -11,7 +11,7 @@ from GoHeader cimport GoFuncDecl
 from GoHeader cimport GoType
 from cgocheck cimport cgocheck
 
-from errors import GolangError
+from errors import GolangError, GoModuleNotPatchedError
 
 cdef class _FuncCaller:
 	cdef GoModule owner
@@ -45,11 +45,11 @@ cdef class GoModule:
 		try:
 			self.__SavePtr = self.clib.__SavePtr
 			self.__FreePtr = self.clib.__FreePtr
+			self.patched = True
 		except AttributeError:
-			print >>sys.stderr, 'ERROR: __SavePtr not exported in Go shared library, please add pyEasyGoPatch.go to your go package'
-			raise 
+			print >>sys.stderr, 'WARNING: %s is not patched, please add pyEasyGoPatch.go to your go package and rebuild to enable full functionalities' % self.filePath
 
-		print soFilePath, "==>", self.clib, self.header, self.__SavePtr, self.__FreePtr
+		# print soFilePath, "==>", self.clib, self.header, self.__SavePtr, self.__FreePtr
 	
 	def __str__(self):
 		return "GoModule<%s>" % self.filePath
@@ -62,12 +62,18 @@ cdef class GoModule:
 		return funcCaller
 
 	cdef savePtr(self, unsigned long ptr):
+		if not self.patched:
+			raise GoModuleNotPatchedError()
+		
 		cdef int refs
 		refs = self.pointerRefCounts[ptr] = self.pointerRefCounts.get(ptr, 0) + 1
 		if refs == 1:
 			self.__SavePtr(c_void_p(ptr))
 
 	cdef freePtr(self, unsigned long ptr):
+		if not self.patched:
+			raise GoModuleNotPatchedError()
+
 		cdef int refs
 		refs = self.pointerRefCounts[ptr] = self.pointerRefCounts.get(ptr, 0) - 1
 		if refs == 0:

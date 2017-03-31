@@ -1,4 +1,5 @@
 import os
+import sys
 
 cdef int _save_cgocheck = -1
 
@@ -6,7 +7,7 @@ cdef int cgocheck():
 	global _save_cgocheck
 	if _save_cgocheck == -1:
 		_save_cgocheck = _get_cgocheck()
-		print 'cgocheck=', _save_cgocheck
+		print >>sys.stderr, 'cgocheck =', _save_cgocheck
 	return _save_cgocheck
 
 cdef int _get_cgocheck():

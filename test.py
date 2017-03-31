@@ -27,22 +27,22 @@ try: gmod.TestString(1); assert False
 except TypeError: pass 
 
 ret = gmod.TestCString("abc")
-print 'TestCString', ret
+print >>sys.stderr, 'TestCString', ret
 
 # test return values
 retVal = gmod.TestReturnVal('world', 5)
-print 'ReturnVal', repr(retVal)
+print >>sys.stderr, 'ReturnVal', repr(retVal)
 
 retVal = gmod.TestReturnString('hello', 3)
-print 'TestReturnString ==>', retVal
+print >>sys.stderr, 'TestReturnString ==>', retVal
 
 try: gmod.UsingAllTypes(); assert False
 except TypeError: pass
 
-print 'TestFloat32', gmod.TestFloat32(3.0)
-print 'TestFloat64', gmod.TestFloat64(1000000000000.1111111111111111111111111)
-print 'TestComplex64', gmod.TestComplex64(1.1)
-print 'TestComplex128', gmod.TestComplex128(1.2)
+print >>sys.stderr, 'TestFloat32', gmod.TestFloat32(3.0)
+print >>sys.stderr, 'TestFloat64', gmod.TestFloat64(1000000000000.1111111111111111111111111)
+print >>sys.stderr, 'TestComplex64', gmod.TestComplex64(1.1)
+print >>sys.stderr, 'TestComplex128', gmod.TestComplex128(1.2)
 
 ptrs = []
 for _ in xrange(10):
@@ -57,7 +57,8 @@ ptrs = []
 
 ########################################### test map ######################################
 
-m = gmod.TestGenMap(10)
-print 'TestGenMap', m
-
+m = gmod.TestNewMap(3)
+gmod.TestPrintMap(m)
+gmod.TestSetMap(m, 100, 100)
+gmod.TestPrintMap(m)
 

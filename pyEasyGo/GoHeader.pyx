@@ -3,7 +3,7 @@ import os
 import sys
 from ctypes import *
 from cgocheck cimport cgocheck
-from goDataTypes cimport GoPointer
+from goDataTypes cimport GoPointer, GoMap
 
 cdef class GoType:
 	def __cinit__(self, str s):
@@ -89,13 +89,12 @@ cdef class GoComplex128Type(GoType):
 
 cdef class GoMapType(GoType):
 	cdef restype(self): return c_void_p
-	cdef convert(self, object pv): 
-		return c_void_p(pv.ptr)
+	cdef convert(self, object pv):
+		cdef GoMap m = pv
+		return c_void_p(m.ptr)
 	cdef bint containsGoPointer(self): return True
 	cdef restore(self, GoModule module, object gv):
-		cdef unsigned long ptr 
-		ptr = gv 
-
+		return GoMap(module, gv)
 
 cdef class GoChanType(GoType):
 	pass
