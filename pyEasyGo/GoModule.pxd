@@ -7,4 +7,8 @@ cdef class GoModule:
 	cdef GoHeader header
 	cdef object __SavePtr
 	cdef object __FreePtr
+	cdef dict pointerRefCounts
+
+	cdef savePtr(self, unsigned long ptr)
+	cdef freePtr(self, unsigned long ptr)
 

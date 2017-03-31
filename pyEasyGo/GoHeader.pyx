@@ -3,6 +3,7 @@ import os
 import sys
 from ctypes import *
 from cgocheck cimport cgocheck
+from goDataTypes cimport GoPointer
 
 cdef class GoType:
 	def __cinit__(self, str s):
@@ -87,7 +88,14 @@ cdef class GoComplex128Type(GoType):
 	cdef convert(self, object pv): return c_double(pv)
 
 cdef class GoMapType(GoType):
-	pass
+	cdef restype(self): return c_void_p
+	cdef convert(self, object pv): 
+		return c_void_p(pv.ptr)
+	cdef bint containsGoPointer(self): return True
+	cdef restore(self, GoModule module, object gv):
+		cdef unsigned long ptr 
+		ptr = gv 
+
 
 cdef class GoChanType(GoType):
 	pass
@@ -98,9 +106,6 @@ cdef class GoSliceType(GoType):
 cdef class GoInterfaceType(GoType):  pass
 cdef class GoCharType(GoType): pass
 
-cdef class GoPointer:
-	pass
-
 cdef class GoPointerType(GoType):
 	cdef GoType subType 
 
@@ -109,8 +114,19 @@ cdef class GoPointerType(GoType):
 		self.subType = makeGoType(subTypeStr)
 	
 	cdef restype(self): return c_void_p
-	cdef convert(self, object pv): return c_void_p(pv)
+
+	cdef convert(self, object pv): 
+		cdef GoPointer gp
+		if isinstance(pv, GoPointer):
+			gp = pv
+			return c_void_p(gp.ptr)
+
+		return c_void_p(pv)
+
 	cdef bint containsGoPointer(self): return True
+
+	cdef restore(self, GoModule module, object gv):
+		return GoPointer(module, gv)
 
 cdef class GoCharPtrType(GoPointerType): 
 	cdef convert(self, object pv):
@@ -124,6 +140,9 @@ cdef class GoCharPtrType(GoPointerType):
 
 	cdef restype(self):
 		return c_char_p
+
+	cdef restore(self, GoModule module, object gv):
+		return gv 
 
 class GoStringHeader(Structure):
 	_fields_ = [ ('p', c_char_p),  ('n', c_long) ]

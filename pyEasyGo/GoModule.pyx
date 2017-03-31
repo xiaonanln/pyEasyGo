@@ -4,6 +4,7 @@ import sys
 import ctypes
 from ctypes import CDLL
 from ctypes import cdll
+from ctypes import c_void_p
 
 from GoHeader cimport GoHeader
 from GoHeader cimport GoFuncDecl
@@ -38,6 +39,7 @@ cdef class GoModule:
 	def __cinit__(self, str soFilePath):
 		self.filePath = soFilePath
 		assert self.filePath.endswith('.so'), self.filePath
+		self.pointerRefCounts = {}
 		self.clib = cdll.LoadLibrary(soFilePath)
 		self.header = GoHeader(self.filePath[:-3] + '.h')
 		try:
@@ -58,4 +60,18 @@ cdef class GoModule:
 		funcCaller = _FuncCaller(self, func, funcDecl)
 		# setattr(self, funcName, funcCaller)
 		return funcCaller
+
+	cdef savePtr(self, unsigned long ptr):
+		cdef int refs
+		refs = self.pointerRefCounts[ptr] = self.pointerRefCounts.get(ptr, 0) + 1
+		if refs == 1:
+			self.__SavePtr(c_void_p(ptr))
+
+	cdef freePtr(self, unsigned long ptr):
+		cdef int refs
+		refs = self.pointerRefCounts[ptr] = self.pointerRefCounts.get(ptr, 0) - 1
+		if refs == 0:
+			self.__FreePtr(c_void_p(ptr))
+		elif refs < 0:
+			print >>sys.stderr, 'ERROR: reference count of pointer %s = %d' % (ptr, refs)
 

@@ -44,13 +44,16 @@ print 'TestFloat64', gmod.TestFloat64(1000000000000.1111111111111111111111111)
 print 'TestComplex64', gmod.TestComplex64(1.1)
 print 'TestComplex128', gmod.TestComplex128(1.2)
 
-while True:
+ptrs = []
+for _ in xrange(10):
 	vptr = gmod.TestVoidPtr(100)
-	gmod.__SavePtr(vptr)
 	print >>sys.stderr, 'TestVoidPtr', vptr, repr(vptr), type(vptr)
+	# gmod.__SavePtr(vptr)
 	gmod.RunGC()
-	print >>sys.stderr, 'TestVoidPtr write', gmod.TestWriteVoidPtr(vptr, 200)
-	time.sleep(1)
+	gmod.TestWriteVoidPtr(vptr, 200)
+	copyPtr = gmod.TestCopyVoidPtr(vptr)
+	ptrs.append(copyPtr)
+ptrs = []
 
 ########################################### test map ######################################
 

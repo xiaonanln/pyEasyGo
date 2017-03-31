@@ -95,6 +95,11 @@ func TestWriteVoidPtr(p unsafe.Pointer, v int) {
 	fmt.Println("Write VoidPtr", pi, oldv, v)
 }
 
+//export TestCopyVoidPtr
+func TestCopyVoidPtr(p unsafe.Pointer) unsafe.Pointer {
+	return p
+}
+
 //export TestSetMap
 func TestSetMap(a map[int]int, k, v int) map[int]int {
 	a[k] = v
