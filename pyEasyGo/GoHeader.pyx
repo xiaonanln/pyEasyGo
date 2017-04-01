@@ -3,7 +3,7 @@ import os
 import sys
 from ctypes import *
 from cgocheck cimport cgocheck
-from goDataTypes cimport GoPointer, GoMap, GoChan
+from goDataTypes cimport GoPointer, GoMap, GoChan, GoInterface, GoSlice
 
 cdef class GoType:
 	def __cinit__(self, str s):
@@ -79,13 +79,21 @@ cdef class GoFloat64Type(GoType):
 	cdef restype(self): return c_double
 	cdef convert(self, object pv): return c_double(pv)
 
+class GoComplex64Struct(Structure):
+	_fields_ = [ ('real', c_float), ('imag', c_float) ]
+
+class GoComplex128Struct(Structure):
+	_fields_ = [ ('real', c_double), ('imag', c_double) ]
+
 cdef class GoComplex64Type(GoType):
-	cdef restype(self): return c_float
-	cdef convert(self, object pv): return c_float(pv)
+	cdef restype(self): return GoComplex64Struct
+	cdef convert(self, object pv): return GoComplex64Struct(pv.real, pv.imag)
+	cdef restore(self, GoModule module, object gv): return complex(gv.real, gv.imag)
 
 cdef class GoComplex128Type(GoType):
-	cdef restype(self): return c_double
-	cdef convert(self, object pv): return c_double(pv)
+	cdef restype(self): return GoComplex128Struct
+	cdef convert(self, object pv): return GoComplex128Struct(pv.real, pv.imag)
+	cdef restore(self, GoModule module, object gv): return complex(gv.real, gv.imag)
 
 cdef class GoMapType(GoType):
 	cdef restype(self): return c_void_p
@@ -111,14 +119,15 @@ class GoInterfaceHeader(Structure):
 cdef class GoInterfaceType(GoType):
 	cdef restype(self): return GoInterfaceHeader
 	cdef convert(self, object pv):
-		return pv
+		cdef GoInterface gi
+		gi = pv
+		return GoInterfaceHeader(gi.t, gi.v)
 	
 	cdef restore(self, GoModule module, object gv):
-		return gv
+		return GoInterface(module, gv.t, gv.v)
 
 	cdef bint containsGoPointer(self):
 		return True
-
 
 class GoSliceHeader(Structure):
 	_fields_ = [ ('data', c_void_p),  ('len', c_long), ('cap', c_long) ]
@@ -126,12 +135,12 @@ class GoSliceHeader(Structure):
 cdef class GoSliceType(GoType):
 	cdef restype(self): return GoSliceHeader
 	cdef convert(self, object pv):
-		print 'GoSliceType.convert', repr(pv)
-		return pv
+		cdef GoSlice gs
+		gs = pv
+		return GoSliceHeader(gs.data, gs.len, gs.cap)
 	
 	cdef restore(self, GoModule module, object gv):
-		print 'GoSliceType.restore', repr(gv)
-		return gv
+		return GoSlice(module, gv.data, gv.len, gv.cap)
 
 	cdef bint containsGoPointer(self):
 		return True

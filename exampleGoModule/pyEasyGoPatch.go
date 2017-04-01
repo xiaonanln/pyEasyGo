@@ -1,6 +1,9 @@
 package main
 
-import "unsafe"
+import (
+	"runtime"
+	"unsafe"
+)
 
 import "C"
 
@@ -16,4 +19,9 @@ func __SavePtr(ptr unsafe.Pointer) {
 //export __FreePtr
 func __FreePtr(ptr unsafe.Pointer) {
 	delete(__savedPtrs, ptr)
+}
+
+//export __GC
+func __GC() {
+	runtime.GC()
 }

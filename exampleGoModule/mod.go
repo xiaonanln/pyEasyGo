@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"runtime"
 	"unsafe"
 )
@@ -10,17 +10,17 @@ import "C"
 
 //export TestVoid
 func TestVoid() {
-	fmt.Println("GO: TestVoid!")
+	log.Println("GO: TestVoid!")
 }
 
 //export TestInt
 func TestInt(a int) {
-	fmt.Println("GO: TestInt!", a)
+	log.Println("GO: TestInt!", a)
 }
 
 //export TestString
 func TestString(a string) {
-	fmt.Println("GO: TestString!", a)
+	log.Println("GO: TestString!", a)
 }
 
 //export TestReturnString
@@ -29,7 +29,7 @@ func TestReturnString(s string, n int) string {
 	for i := 0; i < n; i++ {
 		ss += s
 	}
-	fmt.Println("GO: TestReturnString", ss[3:10])
+	log.Println("GO: TestReturnString", ss[3:10])
 	return ss[3:10]
 }
 
@@ -40,7 +40,7 @@ func TestReturnVal(_s *C.char, n int) *C.char {
 	for i := 0; i < n; i++ {
 		ss += s
 	}
-	fmt.Println("GO: TestReturnVal", ss)
+	log.Println("GO: TestReturnVal", ss)
 	return C.CString(ss)
 }
 
@@ -56,13 +56,13 @@ func TestFloat64(f float64) float64 {
 
 //export TestComplex64
 func TestComplex64(comp complex64) complex64 {
-	fmt.Printf("GO: TestComplex64 %v => %v\n", comp, comp*comp)
+	log.Printf("GO: TestComplex64 %v => %v\n", comp, comp*comp)
 	return comp * comp
 }
 
 //export TestComplex128
 func TestComplex128(comp complex128) complex128 {
-	fmt.Printf("GO: TestComplex128 %v => %v\n", comp, comp+comp)
+	log.Printf("GO: TestComplex128 %v => %v\n", comp, comp+comp)
 	return comp + comp
 }
 
@@ -70,13 +70,13 @@ func TestComplex128(comp complex128) complex128 {
 func TestCString(s *C.char) *C.char {
 	gos := C.GoString(s)
 	gos = gos + gos
-	fmt.Println("GO: TestCString!", gos)
+	log.Println("GO: TestCString!", gos)
 	return C.CString(gos)
 }
 
 //export RunGC
 func RunGC() {
-	fmt.Println("GO: GC ...")
+	log.Println("GO: GC ...")
 	runtime.GC()
 }
 
@@ -92,7 +92,7 @@ func TestWriteVoidPtr(p unsafe.Pointer, v int) {
 	pi := (*int)(p)
 	oldv := *pi
 	*pi = v
-	fmt.Println("Write VoidPtr", pi, oldv, v)
+	log.Println("Write VoidPtr", pi, oldv, v)
 }
 
 //export TestCopyVoidPtr
@@ -113,7 +113,7 @@ func TestGetMap(a map[int]int, k int) int {
 
 //export TestPrintMap
 func TestPrintMap(m map[int]int) {
-	fmt.Printf("TestPrintMap %v\n", m)
+	log.Printf("TestPrintMap %v\n", m)
 }
 
 //export TestNewMap
@@ -148,7 +148,7 @@ type T struct {
 //export TestNewInterface
 func TestNewInterface() interface{} {
 	t := &T{}
-	fmt.Printf("GO: TestNewInterface: %p %v\n", t, t)
+	log.Printf("GO: TestNewInterface: %p %v\n", t, t)
 	return t
 }
 
@@ -156,15 +156,22 @@ func TestNewInterface() interface{} {
 func TestSetInterface(tv interface{}, v int) interface{} {
 	t := tv.(*T)
 	t.value = v
-	fmt.Printf("GO: TestSetInterface: %p %v\n", t, t)
+	log.Printf("GO: TestSetInterface: %p %v\n", t, t)
 	return t
 }
 
 //export TestGetInterface
 func TestGetInterface(tv interface{}) int {
 	t := tv.(*T)
-	fmt.Printf("GO: TestGetInterface: %p %v\n", t, t)
+	log.Printf("GO: TestGetInterface: %p %v\n", t, t)
 	return t.value
+}
+
+//export TestNewSlice
+func TestNewSlice(len int, cap int) []int {
+	slice := make([]int, len, cap)
+	log.Printf("TestNewSlice cap=%d: %p %v", cap, slice, slice)
+	return slice
 }
 
 //export UsingAllTypes
@@ -173,13 +180,13 @@ func UsingAllTypes(byte, int, rune, uint8, int8, uint16, int16, uint32, int32, u
 }
 
 func (t *T) Method1() {
-	fmt.Println("GO: Method1")
+	log.Println("GO: Method1")
 }
 
 func init() {
-	fmt.Println("GO: init")
+	log.Println("GO: init")
 }
 
 func main() {
-	fmt.Println("GO: main")
+	log.Println("GO: main")
 }

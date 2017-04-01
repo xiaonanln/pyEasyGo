@@ -45,6 +45,7 @@ cdef class GoModule:
 		try:
 			self.__SavePtr = self.clib.__SavePtr
 			self.__FreePtr = self.clib.__FreePtr
+			self.__GC = self.clib.__GC
 			self.patched = True
 		except AttributeError:
 			print >>sys.stderr, 'WARNING: %s is not patched, please add pyEasyGoPatch.go to your go package and rebuild to enable full functionalities' % self.filePath
@@ -80,4 +81,7 @@ cdef class GoModule:
 			self.__FreePtr(c_void_p(ptr))
 		elif refs < 0:
 			print >>sys.stderr, 'ERROR: reference count of pointer %s = %d' % (ptr, refs)
+
+	cpdef void GC(self):
+		self.__GC()
 

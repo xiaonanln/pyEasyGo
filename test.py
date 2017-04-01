@@ -41,15 +41,16 @@ except TypeError: pass
 
 print >>sys.stderr, 'TestFloat32', gmod.TestFloat32(3.0)
 print >>sys.stderr, 'TestFloat64', gmod.TestFloat64(1000000000000.1111111111111111111111111)
-print >>sys.stderr, 'TestComplex64', gmod.TestComplex64(1.1)
-print >>sys.stderr, 'TestComplex128', gmod.TestComplex128(1.2)
+print >>sys.stderr, 'TestComplex64', gmod.TestComplex64(complex(1, 2))
+print >>sys.stderr, 'TestComplex128', gmod.TestComplex128(complex(1, 2))
+print >>sys.stderr, 'TestComplex128', gmod.TestComplex128(4)
 
 ptrs = []
-for _ in xrange(10):
+for _ in xrange(3):
 	vptr = gmod.TestVoidPtr(100)
 	print >>sys.stderr, 'TestVoidPtr', vptr, repr(vptr), type(vptr)
 	# gmod.__SavePtr(vptr)
-	gmod.RunGC()
+	gmod.GC()
 	gmod.TestWriteVoidPtr(vptr, 200)
 	copyPtr = gmod.TestCopyVoidPtr(vptr)
 	ptrs.append(copyPtr)
@@ -73,17 +74,24 @@ for i in xrange(N):
 
 ########### TEST INTERFACE ####
 ints = []
-for _ in xrange(10):
+for _ in xrange(3):
 	i = gmod.TestNewInterface()
 	gmod.TestSetInterface(i, 100)
 	gmod.TestSetInterface(i, 200)
 	gmod.TestGetInterface(i)
 	ints.append(i)
-	gmod.RunGC()
+	gmod.GC()
 
 ints = []
+gmod.GC()
+gmod.TestNewInterface()
 
-
-
-
-
+##########################3 TEST SLICE #####################################
+save = []
+for _ in xrange(4):
+	sl = gmod.TestNewSlice(0, 10)
+	save.append(sl)
+	gmod.GC()
+save[:] = []
+gmod.GC()
+sl = gmod.TestNewSlice(0, 10)
