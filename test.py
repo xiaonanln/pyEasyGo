@@ -71,3 +71,19 @@ for i in xrange(N):
 for i in xrange(N):
 	print >>sys.stderr, 'pop', gmod.TestPopChan(ch)
 
+########### TEST INTERFACE ####
+ints = []
+for _ in xrange(10):
+	i = gmod.TestNewInterface()
+	gmod.TestSetInterface(i, 100)
+	gmod.TestSetInterface(i, 200)
+	gmod.TestGetInterface(i)
+	ints.append(i)
+	gmod.RunGC()
+
+ints = []
+
+
+
+
+

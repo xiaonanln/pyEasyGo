@@ -105,10 +105,37 @@ cdef class GoChanType(GoType):
 	cdef restore(self, GoModule module, object gv):
 		return GoChan(module, gv)
 
-cdef class GoSliceType(GoType):
-	pass
+class GoInterfaceHeader(Structure):
+	_fields_ = [ ('t', c_void_p), ('v', c_void_p) ]
 
-cdef class GoInterfaceType(GoType):  pass
+cdef class GoInterfaceType(GoType):
+	cdef restype(self): return GoInterfaceHeader
+	cdef convert(self, object pv):
+		return pv
+	
+	cdef restore(self, GoModule module, object gv):
+		return gv
+
+	cdef bint containsGoPointer(self):
+		return True
+
+
+class GoSliceHeader(Structure):
+	_fields_ = [ ('data', c_void_p),  ('len', c_long), ('cap', c_long) ]
+
+cdef class GoSliceType(GoType):
+	cdef restype(self): return GoSliceHeader
+	cdef convert(self, object pv):
+		print 'GoSliceType.convert', repr(pv)
+		return pv
+	
+	cdef restore(self, GoModule module, object gv):
+		print 'GoSliceType.restore', repr(gv)
+		return gv
+
+	cdef bint containsGoPointer(self):
+		return True
+
 cdef class GoCharType(GoType): pass
 
 cdef class GoPointerType(GoType):

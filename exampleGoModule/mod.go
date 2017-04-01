@@ -142,18 +142,29 @@ func TestPopChan(ch chan int) int {
 }
 
 type T struct {
+	value int
 }
 
-//export NewObject
-func NewObject() interface{} {
-	fmt.Println("GO: NewObject")
-	return &T{}
+//export TestNewInterface
+func TestNewInterface() interface{} {
+	t := &T{}
+	fmt.Printf("GO: TestNewInterface: %p %v\n", t, t)
+	return t
 }
 
-//export NewObject2
-func NewObject2() unsafe.Pointer {
-	fmt.Println("GO: NewObject2")
-	return unsafe.Pointer(&T{})
+//export TestSetInterface
+func TestSetInterface(tv interface{}, v int) interface{} {
+	t := tv.(*T)
+	t.value = v
+	fmt.Printf("GO: TestSetInterface: %p %v\n", t, t)
+	return t
+}
+
+//export TestGetInterface
+func TestGetInterface(tv interface{}) int {
+	t := tv.(*T)
+	fmt.Printf("GO: TestGetInterface: %p %v\n", t, t)
+	return t.value
 }
 
 //export UsingAllTypes
