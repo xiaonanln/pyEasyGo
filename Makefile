@@ -13,6 +13,9 @@ pyEasyGo:
 test: all
 	python test.py
 
+test_perf: all
+	python test_perf.py
+
 clean:
 	rm -rf build
 	rm -rf *.so

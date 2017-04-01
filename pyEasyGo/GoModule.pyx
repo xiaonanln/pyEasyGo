@@ -10,6 +10,7 @@ from GoHeader cimport GoHeader
 from GoHeader cimport GoFuncDecl
 from GoHeader cimport GoType
 from cgocheck cimport cgocheck
+from goDataTypes cimport GoMap, GoMapIntInt
 
 from errors import GolangError, GoModuleNotPatchedError
 
@@ -84,4 +85,9 @@ cdef class GoModule:
 
 	cpdef void GC(self):
 		self.__GC()
+
+	cpdef GoMapIntInt NewMapIntInt(self, long cap):
+		cdef GoMap m
+		m = self.__NewMapIntInt(cap)
+		return GoMapIntInt(m.module, m.ptr)
 

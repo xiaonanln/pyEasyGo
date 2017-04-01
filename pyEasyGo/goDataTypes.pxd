@@ -8,6 +8,9 @@ cdef class GoMap:
 	cdef GoModule module
 	cdef unsigned long ptr
 
+cdef class GoMapIntInt(GoMap):
+	pass
+
 cdef class GoChan:
 	cdef GoModule module
 	cdef unsigned long ptr

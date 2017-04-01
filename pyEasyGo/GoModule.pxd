@@ -1,5 +1,6 @@
 
 from GoHeader cimport GoHeader
+from goDataTypes cimport GoMapIntInt
 
 cdef class GoModule:
 	cdef object clib
@@ -14,5 +15,6 @@ cdef class GoModule:
 	cdef savePtr(self, unsigned long ptr)
 	cdef freePtr(self, unsigned long ptr)
 	cpdef void GC(self)
+	cpdef GoMapIntInt NewMapIntInt(self, long cap)
 
 

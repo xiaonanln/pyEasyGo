@@ -21,6 +21,20 @@ cdef class GoMap:
 	def __dealloc__(self):
 		self.module.freePtr(self.ptr)
 
+cdef class GoMapIntInt(GoMap):
+	
+	def __len__(self):
+		return self.module.__GetLenMapIntInt(self)
+
+	def __getitem__(self, k):
+		return self.module.__GetMapIntInt(self, k)
+
+	def __setitem__(self, k, v):
+		self.module.__SetMapIntInt(self, k, v)
+
+	def __delitem__(self, k):
+		self.module.__DeleteMapIntInt(self, k)
+
 cdef class GoChan:
 
 	def __cinit__(self, GoModule module, unsigned long p):
