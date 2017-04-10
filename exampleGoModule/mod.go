@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"runtime"
 	"unsafe"
 )
@@ -72,6 +73,17 @@ func TestCString(s *C.char) *C.char {
 	gos = gos + gos
 	log.Println("GO: TestCString!", gos)
 	return C.CString(gos)
+}
+
+//export ProfileMap
+func ProfileMap(n int) {
+	m := map[int]int{}
+	for i := 0; i < n; i++ {
+		m[i] = rand.Intn(i + 1)
+	}
+	for i := 0; i < n; i++ {
+		delete(m, i)
+	}
 }
 
 //export RunGC

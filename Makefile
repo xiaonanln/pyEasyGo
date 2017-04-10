@@ -13,8 +13,8 @@ pyEasyGo:
 test: all
 	python test.py
 
-test_perf: all
-	python test_perf.py
+perf: all
+	python perf.py
 
 clean:
 	python setup.py clean
