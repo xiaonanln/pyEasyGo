@@ -1,4 +1,4 @@
-.PHONY: all test clean pyEasyGo exampleGoModule
+.PHONY: all test clean pyEasyGo exampleGoModule install
 
 lib=pyEasyGo
 
@@ -23,3 +23,5 @@ clean:
 	rm -rf $(patsubst %.pyx,%.c,$(wildcard $(lib)/*.pyx))
 	rm -rf $(lib)/*.so $(lib)/*.pyc exampleGoModule/*~ exampleGoModule/*.h exampleGoModule/*.so
 
+install:
+	python setup.py install

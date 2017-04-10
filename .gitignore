@@ -6,3 +6,5 @@ pyEasyGo/*.c
 *.pyc
 .*.swp
 *.swo
+pyEasyGo.egg-info/
+dist/
